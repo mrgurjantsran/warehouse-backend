@@ -25,8 +25,9 @@ app.use(cors({
            'https://divine-wms-ft-git-main-gurjant-srans-projects.vercel.app'
           ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400
 }));
 
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
@@ -82,6 +83,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
