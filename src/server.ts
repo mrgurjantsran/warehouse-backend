@@ -30,12 +30,12 @@ app.use(cors({
 }));
 
 // API Routes
-app.use('api/auth', authRoutes);
-app.use('api/warehouses', warehousesRoutes);
-app.use('api/inbound', inboundRoutes);
-app.use('api/master-data', masterDataRoutes);
-app.use('api/users', usersRoutes);
-app.use('api/racks', rackRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/warehouses', warehousesRoutes);
+app.use('/api/inbound', inboundRoutes);
+app.use('/api/master-data', masterDataRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/racks', rackRoutes);
 
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(express.json({ limit: '500mb' }));
@@ -81,6 +81,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
