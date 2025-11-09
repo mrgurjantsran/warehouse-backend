@@ -17,25 +17,17 @@ const app: Express = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// app.use(cors({
-//   origin: ['http://localhost:3000', 
-//            'http://localhost:3001',
-//            'https://divine-wms-ft.vercel.app',
-//            'https://divine-wms-g5tto378c-gurjant-srans-projects.vercel.app',
-//            'https://divine-wms-ft-git-main-gurjant-srans-projects.vercel.app'
-//           ],
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
 app.use(cors({
-  origin: '*',
-  // credentials: true,   // *REMOVE THIS LINE/HATADO!*
+  origin: ['http://localhost:3000', 
+           'http://localhost:3001',
+           'https://divine-wms-ft.vercel.app',
+           'https://divine-wms-g5tto378c-gurjant-srans-projects.vercel.app',
+           'https://divine-wms-ft-git-main-gurjant-srans-projects.vercel.app'
+          ],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(express.json({ limit: '500mb' }));
@@ -52,6 +44,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // API Routes
+//app.use('/api/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/warehouses', warehousesRoutes);
 app.use('/api/inbound', inboundRoutes);
@@ -91,6 +84,7 @@ app.use(errorHandler);
 })();
 
 export default app;
+
 
 
 
