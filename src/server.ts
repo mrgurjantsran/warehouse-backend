@@ -22,7 +22,7 @@ app.use(cors({
            'http://localhost:3001',
            'https://divinewms.vercel.app',           
            'https://divinewms-git-main-gurjant-sran.vercel.app',
-           'https://divine-azce1e4sc-gurjant-sran.vercel.app
+           'https://divine-azce1e4sc-gurjant-sran.vercel.app'
             ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -83,6 +83,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
