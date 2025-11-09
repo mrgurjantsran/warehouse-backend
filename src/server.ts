@@ -29,9 +29,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// API Routes
+app.use('api/auth', authRoutes);
+app.use('api/warehouses', warehousesRoutes);
+app.use('api/inbound', inboundRoutes);
+app.use('api/master-data', masterDataRoutes);
+app.use('api/users', usersRoutes);
+app.use('api/racks', rackRoutes);
+
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(express.json({ limit: '500mb' }));
-//app.use(express.urlencoded({ extended: true, limit: '500mb', parameterLimit: 1000000 }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health Check
@@ -42,15 +49,6 @@ app.get('/api/health', (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
-
-// API Routes
-//app.use('/api/auth', authRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/warehouses', warehousesRoutes);
-app.use('/api/inbound', inboundRoutes);
-app.use('/api/master-data', masterDataRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/racks', rackRoutes);
 
 // 404 Handler
 app.use((req: Request, res: Response) => {
@@ -82,8 +80,8 @@ app.use(errorHandler);
     process.exit(1);
   }
 })();
-
 export default app;
+
 
 
 
