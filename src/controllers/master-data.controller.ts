@@ -77,8 +77,6 @@ export const getMasterData = async (req: Request, res: Response) => {
   }
 };
 
-import ExcelJS from 'exceljs';
-
 // Replace this block:
 export const uploadMasterData = async (req: Request, res: Response) => {
   try {
@@ -482,4 +480,5 @@ export const exportMasterData = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
