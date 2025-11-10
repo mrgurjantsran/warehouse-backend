@@ -4,7 +4,6 @@ import { generateBatchId } from '../utils/helpers';
 import * as XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
-import ExcelJS from 'exceljs';
 
 // Progress tracking with file-based persistence
 const PROGRESS_DIR = path.join(__dirname, '../../temp/progress');
@@ -66,19 +65,17 @@ export const getMasterData = async (req: Request, res: Response) => {
     const countResult = await query(countSql, countParams);
 
     res.json({
-    data: result.rows || [],
-    total: parseInt(countResult.rows?.[0]?.count || "0", 10),
-    page: Number(page) || 1,
-    limit: Number(limit) || 100,
+      data: result.rows,
+      total: parseInt(countResult.rows[0].count),
+      page: Number(page),
+      limit: Number(limit),
     });
-    
   } catch (error: any) {
     console.error('Get master data error:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Replace this block:
 export const uploadMasterData = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
@@ -86,160 +83,57 @@ export const uploadMasterData = async (req: Request, res: Response) => {
     }
 
     const filePath = req.file.path;
+    const workbook = XLSX.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    
+    if (!sheetName) {
+      fs.unlinkSync(filePath);
+      return res.status(400).json({ error: 'Excel file has no sheets' });
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    if (data.length === 0) {
+      fs.unlinkSync(filePath);
+      return res.status(400).json({ error: 'Excel file is empty' });
+    }
+
     const batchId = generateBatchId('BULK');
     const jobId = `job_${Date.now()}`;
-
-    // Initialize progress
+    
+    // Initialize progress with file persistence
     const progressData = {
       status: 'processing',
       processed: 0,
-      total: 0,
+      total: data.length,
       successCount: 0,
       errorCount: 0,
       batchId,
-      startTime: Date.now(),
+      startTime: Date.now()
     };
+    
     saveProgress(jobId, progressData);
 
-    // Send response immediately
+    // Send immediate response
     res.status(202).json({
-      message: 'Streaming upload started',
+      message: 'Upload started',
       jobId,
       batchId,
+      totalRows: data.length
     });
 
-    // Process in background
-    processExcelStream(filePath, batchId, jobId);
+    // Process in background (don't await)
+    processUploadInBackground(data, batchId, jobId, filePath);
 
   } catch (error: any) {
     console.error('Upload error:', error);
+    if (req.file?.path) {
+      try { fs.unlinkSync(req.file.path); } catch (e) { }
+    }
     res.status(500).json({ error: error.message });
   }
 };
-
-async function processExcelStream(filePath: string, batchId: string, jobId: string) {
-  const workbook = new ExcelJS.Workbook();
-  const validRows: any[] = [];
-  let rowCount = 0;
-  let successCount = 0;
-  let errorCount = 0;
-  const CHUNK_SIZE = 3000;
-
-  try {
-    console.log(`🔄 Stream reading: ${filePath}`);
-
-    // Stream read first sheet
-    const stream = fs.createReadStream(filePath);
-    await workbook.xlsx.read(stream);
-
-    const worksheet = workbook.worksheets[0];
-    if (!worksheet) {
-      throw new Error('No worksheet found');
-    }
-
-    // Count total rows for progress
-    worksheet.eachRow(() => rowCount++);
-    const progress = getProgress(jobId);
-    if (progress) {
-      progress.total = rowCount;
-      saveProgress(jobId, progress);
-    }
-
-    let processedRows = 0;
-
-    // Re-read (stream again) for actual data
-    const workbook2 = new ExcelJS.Workbook();
-    await workbook2.xlsx.readFile(filePath);
-    const ws = workbook2.worksheets[0];
-
-    for (let i = 2; i <= ws.rowCount; i++) {
-      const row = ws.getRow(i);
-      const wsn = row.getCell('A').value; // Adjust column names as per your Excel
-
-      if (!wsn) continue;
-
-      validRows.push({
-        wsn: String(wsn).trim(),
-        wid: row.getCell('B').value || null,
-        fsn: row.getCell('C').value || null,
-        // ... map all your columns ...
-        batchId
-      });
-
-      if (validRows.length >= CHUNK_SIZE) {
-        await insertChunk(validRows, batchId);
-        processedRows += validRows.length;
-        validRows.length = 0; // clear array
-
-        const prog = getProgress(jobId);
-        if (prog) {
-          prog.processed = processedRows;
-          prog.successCount = processedRows;
-          saveProgress(jobId, prog);
-        }
-
-        console.log(`✓ Processed ${processedRows}/${rowCount}`);
-      }
-    }
-
-    // Final remaining rows
-    if (validRows.length > 0) {
-      await insertChunk(validRows, batchId);
-    }
-
-    const finalProgress = getProgress(jobId);
-    if (finalProgress) {
-      finalProgress.status = 'completed';
-      finalProgress.processed = rowCount;
-      finalProgress.successCount = rowCount;
-      saveProgress(jobId, finalProgress);
-    }
-
-    console.log(`🎉 Upload complete for batch ${batchId}`);
-
-  } catch (err: any) {
-    console.error('Stream processing error:', err);
-    const progress = getProgress(jobId);
-    if (progress) {
-      progress.status = 'failed';
-      saveProgress(jobId, progress);
-    }
-  } finally {
-    fs.unlinkSync(filePath);
-  }
-}
-
-async function insertChunk(rows: any[], batchId: string) {
-  const params: any[] = [];
-  const valueClauses: string[] = [];
-  let paramIndex = 1;
-
-  for (const row of rows) {
-    const cols = [
-      row.wsn, row.wid, row.fsn, row.order_id, row.fkqc_remark, row.fk_grade,
-      row.product_title, row.hsn_sac, row.igst_rate, row.fsp, row.mrp,
-      row.invoice_date, row.fkt_link, row.wh_location, row.brand, row.cms_vertical,
-      row.vrp, row.yield_value, row.p_type, row.p_size, row.batchId,
-    ];
-
-    const placeholders = cols.map(() => `$${paramIndex++}`).join(', ');
-    valueClauses.push(`(${placeholders})`);
-    params.push(...cols);
-  }
-
-  const sql = `
-    INSERT INTO master_data (
-      wsn, wid, fsn, order_id, fkqc_remark, fk_grade, product_title,
-      hsn_sac, igst_rate, fsp, mrp, invoice_date, fkt_link,
-      wh_location, brand, cms_vertical, vrp, yield_value, p_type, p_size, batch_id
-    )
-    VALUES ${valueClauses.join(', ')}
-    ON CONFLICT (wsn) DO NOTHING
-  `;
-
-  await query(sql, params);
-}
-
 
 async function processUploadInBackground(data: any[], batchId: string, jobId: string, filePath: string) {
   const CHUNK_SIZE = 3000;
@@ -481,6 +375,3 @@ export const exportMasterData = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
