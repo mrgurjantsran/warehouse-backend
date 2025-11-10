@@ -660,59 +660,59 @@ export const getWarehouseRacks = async (req: Request, res: Response) => {
 export const getUniqueBrands = async (req: Request, res: Response) => {
   try {
     const { warehouse_id } = req.query;
-    let whereClause = '';
     const params: any[] = [];
 
+    let whereClause = 'WHERE brand IS NOT NULL';
+
     if (warehouse_id) {
-      whereClause = 'WHERE warehouse_id = $1';
       params.push(warehouse_id);
+      whereClause += ` AND warehouse_id = $${params.length}`;
     }
 
     const sql = `
-      SELECT DISTINCT brand 
-      FROM inbound 
+      SELECT DISTINCT brand
+      FROM inbound
       ${whereClause}
-      WHERE brand IS NOT NULL 
-      ORDER BY brand
+      ORDER BY brand;
     `;
 
     const result = await query(sql, params);
     res.json(result.rows.map((row: any) => row.brand));
-
   } catch (error: any) {
     console.error('Get brands error:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Get categories
 export const getUniqueCategories = async (req: Request, res: Response) => {
   try {
     const { warehouse_id } = req.query;
-    let whereClause = '';
     const params: any[] = [];
 
+    let whereClause = 'WHERE cms_vertical IS NOT NULL';
+
     if (warehouse_id) {
-      whereClause = 'WHERE warehouse_id = $1';
       params.push(warehouse_id);
+      whereClause += ` AND warehouse_id = $${params.length}`;
     }
 
     const sql = `
-      SELECT DISTINCT cms_vertical 
-      FROM inbound 
+      SELECT DISTINCT cms_vertical
+      FROM inbound
       ${whereClause}
-      WHERE cms_vertical IS NOT NULL 
-      ORDER BY cms_vertical
+      ORDER BY cms_vertical;
     `;
 
     const result = await query(sql, params);
     res.json(result.rows.map((row: any) => row.cms_vertical));
-
   } catch (error: any) {
     console.error('Get categories error:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Get unique brands
 export const getBrands = async (req: Request, res: Response) => {
