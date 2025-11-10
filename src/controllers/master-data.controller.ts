@@ -245,17 +245,18 @@ async function processExcelStream(filePath: string, batchId: string, jobId: stri
       batchId
     });
 
-    // Convert Excel to CSV
-    const workbook = XLSX.readFile(filePath);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const csv = XLSX.utils.sheet_to_csv(sheet);
-    csvPath = filePath.replace(/\.\w+$/, '.csv');
-    fs.writeFileSync(csvPath, csv);
+     // Convert Excel to CSV
+      const workbook = XLSX.readFile(filePath);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const csvData = XLSX.utils.sheet_to_csv(sheet); // 🔹 yahan variable ka naam 'csvData' rakho
+      csvPath = filePath.replace(/\.\w+$/, '.csv');
+      fs.writeFileSync(csvPath, csvData);
 
-    // Stream CSV
-    const stream = createReadStream(csvPath).pipe(csv());
+      // Stream CSV
+      const stream = createReadStream(csvPath).pipe(csv()); // 🔹 yahan 'csv()' wahi import wala function hai
 
-    stream.on('data', async (row: any) => {
+
+     stream.on('data', async (row: any) => {
       const wsn = row['WSN'] || row['wsn'];
       if (!wsn) return;
 
@@ -330,7 +331,7 @@ async function processExcelStream(filePath: string, batchId: string, jobId: stri
       cleanup(filePath, jobId, csvPath);
     });
 
-    stream.on('error', (err) => {
+    stream.on('error', (err: { message: any; }) => {
       console.error('❌ Stream error:', err);
       saveProgress(jobId, { status: 'failed', error: err.message, batchId });
       cleanup(filePath, jobId, csvPath);
