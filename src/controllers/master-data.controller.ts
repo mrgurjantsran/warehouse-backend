@@ -66,11 +66,12 @@ export const getMasterData = async (req: Request, res: Response) => {
     const countResult = await query(countSql, countParams);
 
     res.json({
-      data: result.rows,
-      total: parseInt(countResult.rows[0].count),
-      page: Number(page),
-      limit: Number(limit),
+    data: result.rows || [],
+    total: parseInt(countResult.rows?.[0]?.count || "0", 10),
+    page: Number(page) || 1,
+    limit: Number(limit) || 100,
     });
+    
   } catch (error: any) {
     console.error('Get master data error:', error);
     res.status(500).json({ error: error.message });
@@ -480,5 +481,6 @@ export const exportMasterData = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
