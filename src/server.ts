@@ -31,7 +31,7 @@ app.use(cors({
   maxAge: 86400
 }));
 
-app.options('/*', cors());
+app.options(/.*/, cors());
 
 app.use(express.urlencoded({ limit: '1000mb', extended: true }));
 app.use(express.json({ limit: '1000mb' }));
@@ -86,6 +86,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
