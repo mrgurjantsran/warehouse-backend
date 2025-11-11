@@ -9,21 +9,19 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}${path.extname(file.originalname)}`)
+  filename: (req, file, cb) => cb(null, `${Date.now()}_${file.originalname}`)
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 500 * 1024 * 1024 },
+  limits: { fileSize: 2 * 1024 * 1024 * 1024 }, // 2GB
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (['.xlsx', '.xls', '.csv'].includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file'));
-    }
+    if (['.xlsx', '.xls', '.csv'].includes(ext)) cb(null, true);
+    else cb(new Error('Invalid file type'));
   }
 });
+
 
 router.get('/', authMiddleware, ctrl.getMasterData);
 router.post('/upload', upload.single('file'), authMiddleware, ctrl.uploadMasterData);
@@ -36,3 +34,4 @@ router.delete('/batch/:batchId', authMiddleware, ctrl.deleteBatch);
 router.get('/export', authMiddleware, ctrl.exportMasterData);
 
 export default router;
+
