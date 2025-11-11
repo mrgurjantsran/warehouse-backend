@@ -18,18 +18,20 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 
-           'http://localhost:3001',
-           'https://divinewms.vercel.app',  
-           'https://divine-wms.onrender.com/api',
-           'https://divinewms-git-main-gurjant-sran.vercel.app',
-           'https://divine-azce1e4sc-gurjant-sran.vercel.app'
-            ],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://divinewms.vercel.app',
+    'https://divinewms-git-main-gurjant-sran.vercel.app',
+    'https://divine-azce1e4sc-gurjant-sran.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
 }));
+
+app.options('*', cors());
 
 app.use(express.urlencoded({ limit: '1000mb', extended: true }));
 app.use(express.json({ limit: '1000mb' }));
@@ -84,6 +86,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
