@@ -150,7 +150,8 @@ export const multiQCEntry = async (req: Request, res: Response) => {
     const existingQC = new Set(qcCheckResult.rows.map((r: any) => r.wsn));
 
     // ✅ FIXED: Call with proper parameter
-    const batchId = generateBatchId('QC_MULTI', entries.length);
+    const batchId = generateBatchId('QC_MULTI');
+
 
     let successCount = 0;
     const results: any[] = [];
@@ -275,7 +276,8 @@ export const bulkQCUpload = async (req: Request, res: Response) => {
     }
 
     // ✅ FIXED: Call with proper parameter
-    const batchId = generateBatchId('QC_BULK', data.length);
+    const batchId = generateBatchId('QC_BULK');
+
 
     res.status(202).json({
       message: 'Upload started',
