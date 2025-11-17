@@ -44,6 +44,7 @@ app.use('/api/inbound', inboundRoutes);
 app.use('/api/master-data', masterDataRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/racks', rackRoutes);
+app.use('/api/qc', qcRoutes);
 
 
 // Health Check
@@ -86,6 +87,7 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
 
 
 
