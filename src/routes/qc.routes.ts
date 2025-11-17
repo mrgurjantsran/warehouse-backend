@@ -43,6 +43,6 @@ router.get('/categories', authMiddleware, qcController.getCategories);
 router.get('/existing-wsns', authMiddleware, qcController.getExistingWSNs);
 router.get('/check-wsn', authMiddleware, qcController.checkWSNExists);
 router.put('/:id', authMiddleware, qcController.updateSingleQC);
-router.get('/existing-wsns', authMiddleware, qcController.getExistingWSNs);
+
 
 export default router;
