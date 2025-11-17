@@ -35,5 +35,6 @@ router.post('/bulk-upload', authMiddleware, upload.single('file'), rackControlle
 router.put('/:id', authMiddleware, rackController.updateRack);
 router.delete('/:id', authMiddleware, rackController.deleteRack);
 router.patch('/:id/toggle', authMiddleware, rackController.toggleRackStatus);
+router.get('/by-warehouse', authMiddleware, rackController.getRacksByWarehouse);
 
 export default router;
