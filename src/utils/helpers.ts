@@ -12,8 +12,15 @@ export const comparePasswords = async (
   return bcrypt.compare(password, hash);
 };
 
-// ✅ UPDATED: Now accepts optional count parameter
-export const generateBatchId = (type: 'BULK' | 'MULTI' | 'SINGLE' | 'QC_BULK' | 'QC_MULTI', count?: number): string => {
+// // ✅ UPDATED: Now accepts optional count parameter
+// export const generateBatchId = (type: 'BULK' | 'MULTI' | 'SINGLE' | 'QC_BULK' | 'QC_MULTI', count?: number): string => {
+//   const timestamp = Date.now();
+//   const random = Math.random().toString(36).substring(7).toUpperCase();
+//   return `${type}_${timestamp}_${random}`;
+// };
+
+// ✅ UPDATED: Now accepts optional count parameter + PICKING types
+export const generateBatchId = (type: 'BULK' | 'MULTI' | 'SINGLE' | 'QC_BULK' | 'QC_MULTI' | 'PICK_BULK' | 'PICK_MULTI', count?: number): string => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(7).toUpperCase();
   return `${type}_${timestamp}_${random}`;
