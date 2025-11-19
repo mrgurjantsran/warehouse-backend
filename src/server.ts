@@ -12,6 +12,7 @@ import usersRoutes from './routes/users.routes';
 import rackRoutes from './routes/rack.routes';
 import qcRoutes from './routes/qc.routes';
 import pickingRoutes from './routes/picking.routes';
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -48,7 +49,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/racks', rackRoutes);
 app.use('/api/qc', qcRoutes);
 app.use('/api/picking', pickingRoutes);
-
+app.use(cookieParser());
 
 
 // Health Check
@@ -91,3 +92,4 @@ app.use(errorHandler);
   }
 })();
 export default app;
+
