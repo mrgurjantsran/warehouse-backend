@@ -38,13 +38,13 @@ export const login = async (req: Request, res: Response) => {
  });
 
   // Set token as cookie
-  res.cookie("token", token, {
-httpOnly: true,
-secure: true,
-sameSite: "none",
-path: "/",
-maxAge: 7 * 24 * 60 * 60 * 1000 // 🔥 7 days login persistence
-  });
+res.cookie("token", token, {
+  httpOnly: false,           // ❗ IMPORTANT: Next.js proxy must read the cookie
+  secure: true,              // HTTPS on Vercel + Render
+  sameSite: "none",          // Required for cross-domain cookies
+  path: "/",                 
+  maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
+});
 
   // Send response
   res.json({
@@ -109,4 +109,5 @@ export const register = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
