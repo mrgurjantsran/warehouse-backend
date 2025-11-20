@@ -39,11 +39,11 @@ export const login = async (req: Request, res: Response) => {
 
   // Set token as cookie
 res.cookie("token", token, {
-  httpOnly: false,           // ❗ IMPORTANT: Next.js proxy must read the cookie
-  secure: true,              // HTTPS on Vercel + Render
-  sameSite: "none",          // Required for cross-domain cookies
-  path: "/",                 
-  maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
+  httpOnly: true,        // secure
+  secure: true,          // REQUIRED for https
+  sameSite: "none",      // REQUIRED for cross-domain
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 });
 
   // Send response
@@ -109,5 +109,6 @@ export const register = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
