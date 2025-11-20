@@ -31,12 +31,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.urlencoded({ limit: '1000mb', extended: true }));
-app.use(express.json({ limit: '1000mb' }));
-
 // 🔥 COOKIE PARSER MUST COME BEFORE ROUTES
 app.use(cookieParser());
 
+app.use(express.urlencoded({ limit: '1000mb', extended: true }));
+app.use(express.json({ limit: '1000mb' }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
@@ -80,3 +79,4 @@ app.use(errorHandler);
 })();
 
 export default app;
+
